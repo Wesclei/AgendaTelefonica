@@ -1,0 +1,116 @@
+﻿@model IEnumerable<AgendaTelefonica.Models.Pessoa>
+
+@{
+    ViewData["Title"] = "Contatos cadastrados";
+}
+
+<div class="alert alert-dark row align-content-center">
+    <div class="col-10 align-content-lg-start">
+        <h6>@Model.Count() contatos cadastrados</h6>
+    </div>
+    <div class="col-2 align-content-end">
+        <a asp-action="CriarPessoa" class="btn btn-outline-dark">Novo contato</a>
+    </div>
+</div>
+
+<div>
+    @if (TempData["ContatoNovo"] != null)
+    {
+        <p class="alert alert-success">@TempData["ContatoNovo"].ToString()</p>
+    }
+    @if (TempData["ContatoAtualizado"] != null)
+    {
+        <p class="alert alert-primary">@TempData["ContatoAtualizado"].ToString()</p>
+    }
+    @if (TempData["ContatoExcluido"] != null)
+    {
+        <p class="alert alert-danger">@TempData["ContatoExcluido"].ToString()</p>
+    }
+</div>
+
+
+@*<p>
+    <a asp-action="Create">Create New</a>
+</p>*@
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nome)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Telefone)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Celular)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nome)
+            </td>           
+            <td>
+                @Html.DisplayFor(modelItem => item.Telefone)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Celular)
+            </td>
+            <td>
+                <a asp-action="AtualizarPessoa" asp-route-pessoaId="@item.PessoaId" class="btn btn-sm btn-outline-primary">Atualizar</a> |               
+                <a class="btn btn-sm btn-outline-danger" onclick="ConfirmarExclusao(@item.PessoaId, '@item.Nome')">Excluir</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<div class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmação de Exclusão</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Prosseguir com a excluisão com contato<text class="nomeContato"></text> ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btnFechar" data-dismiss="modal">Não</button>
+                <button type="button" class="btn btn-outline-danger btnExcluir" data-dismiss="modal">Sim</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        function ConfirmarExclusao(pessoaId, nomeContato) {
+            $(".nomeContato").text(nomeContato);
+            $(".modal").modal();
+
+            $(".btnExcluir").on('click', function () {
+                $.ajax({
+                    url: 'Pessoas/ExcluirPessoa',
+                    method: 'POST',
+                    data: { pessoaId: pessoaId },
+                    success: function (data) {
+                        location.reload(true);
+                    }
+                });
+            });
+
+            $(".btnFechar").on('click', function () {
+                pessoaId = null;
+                nomeContato = null;
+                $(".modal").modal('hide');
+            });
+        }
+
+    </script>
+
+ }
